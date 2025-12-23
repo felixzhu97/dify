@@ -1,0 +1,264 @@
+@startuml Security Architecture View
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+title Dify Security Architecture View
+
+' Authentication Layer
+package "Authentication Layer" {
+  component "User Authentication" as UserAuth {
+    component "Email/Password" as EmailPassword
+    component "OAuth 2.0" as OAuth2
+    component "API Key" as APIKey
+    component "Bearer Token" as BearerToken
+  }
+  
+  component "Session Management" as SessionMgmt {
+    component "JWT Token" as JWT
+    component "Session Cookie" as SessionCookie
+    component "Token Refresh" as TokenRefresh
+  }
+  
+  component "Credential Management" as CredentialMgmt {
+    component "Password Encryption" as PasswordEncrypt
+    component "API Key Encryption" as APIKeyEncrypt
+    component "Credential Storage" as CredentialStorage
+  }
+}
+
+' Authorization Layer
+package "Authorization Layer" {
+  component "Access Control" as AccessControl {
+    component "Workspace Isolation" as WorkspaceIsolation
+    component "App Access Control" as AppAccessControl
+    component "Dataset Permission" as DatasetPermission
+    component "Role Permission" as RolePermission
+  }
+  
+  component "Permission Model" as PermissionModel {
+    component "Owner Permission" as OwnerPerm
+    component "Member Permission" as MemberPerm
+    component "Read-only Permission" as ReadOnlyPerm
+    component "Public Access" as PublicAccess
+  }
+  
+  component "Resource Authorization" as ResourceAuth {
+    component "API Endpoint Auth" as EndpointAuth
+    component "Data Access Auth" as DataAccessAuth
+    component "Operation Auth" as OperationAuth
+  }
+}
+
+' Data Security Layer
+package "Data Security Layer" {
+  component "Data Encryption" as DataEncryption {
+    component "Transport Encryption" as TransportEncrypt
+    component "Storage Encryption" as StorageEncrypt
+    component "Sensitive Data Encryption" as SensitiveEncrypt
+  }
+  
+  component "Data Protection" as DataProtection {
+    component "Data Masking" as DataMasking
+    component "Data Backup" as DataBackup
+    component "Data Recovery" as DataRecovery
+  }
+  
+  component "Credential Security" as CredentialSecurity {
+    component "Provider Credential Encryption" as ProviderCredEncrypt
+    component "API Key Management" as APIKeyMgmt
+    component "Key Rotation" as KeyRotation
+  }
+}
+
+' Content Security Layer
+package "Content Security Layer" {
+  component "Input Moderation" as InputModeration {
+    component "Keyword Filtering" as KeywordFilter
+    component "OpenAI Moderation" as OpenAIModeration
+    component "Custom Moderation" as CustomModeration
+  }
+  
+  component "Output Moderation" as OutputModeration {
+    component "Output Content Moderation" as OutputContentMod
+    component "Sensitive Info Filter" as SensitiveFilter
+  }
+  
+  component "Content Filtering" as ContentFiltering {
+    component "Malicious Content Detection" as MaliciousDetection
+    component "Inappropriate Content Filter" as InappropriateFilter
+  }
+}
+
+' Network Security Layer
+package "Network Security Layer" {
+  component "Transport Security" as TransportSecurity {
+    component "HTTPS/TLS" as HTTPS
+    component "Certificate Management" as CertMgmt
+    component "SSL/TLS Config" as SSLConfig
+  }
+  
+  component "Network Protection" as NetworkProtection {
+    component "SSRF Protection Proxy" as SSRFProxy
+    component "Rate Limiting" as RateLimiting
+    component "DDoS Protection" as DDoSProtection
+  }
+  
+  component "API Security" as APISecurity {
+    component "API Rate Limiting" as APIRateLimit
+    component "Request Validation" as RequestValidation
+    component "CORS Configuration" as CORS
+  }
+}
+
+' Security Monitoring Layer
+package "Security Monitoring Layer" {
+  component "Logging" as Logging {
+    component "Access Log" as AccessLog
+    component "Error Log" as ErrorLog
+    component "Security Event Log" as SecurityLog
+  }
+  
+  component "Error Tracking" as ErrorTracking {
+    component "Sentry Integration" as Sentry
+    component "Exception Monitoring" as ExceptionMonitoring
+  }
+  
+  component "Tracing System" as TracingSystem {
+    component "OpenTelemetry" as OpenTelemetry
+    component "Distributed Tracing" as DistributedTracing
+    component "Performance Monitoring" as PerfMonitoring
+  }
+  
+  component "Security Audit" as SecurityAudit {
+    component "Operation Audit" as OperationAudit
+    component "Access Audit" as AccessAudit
+    component "Change Audit" as ChangeAudit
+  }
+}
+
+' Compliance
+package "Compliance" {
+  component "Data Privacy" as DataPrivacy {
+    component "GDPR Compliance" as GDPR
+    component "Data Retention Policy" as DataRetention
+    component "User Data Deletion" as UserDataDeletion
+  }
+  
+  component "Security Standards" as SecurityStandards {
+    component "OWASP Top 10" as OWASP
+    component "Security Best Practices" as BestPractices
+  }
+}
+
+' Security Process Components
+package "Security Process Components" {
+  component "Authentication Process" as AuthFlow
+  component "Authorization Process" as AuthzFlow
+  component "Content Moderation Process" as ModerationFlow
+}
+
+' Relationships
+UserAuth --> SessionMgmt
+UserAuth --> CredentialMgmt
+SessionMgmt --> JWT
+SessionMgmt --> SessionCookie
+
+AccessControl --> PermissionModel
+AccessControl --> ResourceAuth
+PermissionModel --> WorkspaceIsolation
+PermissionModel --> AppAccessControl
+
+DataEncryption --> TransportEncrypt
+DataEncryption --> StorageEncrypt
+DataEncryption --> SensitiveEncrypt
+CredentialSecurity --> ProviderCredEncrypt
+CredentialSecurity --> APIKeyMgmt
+
+InputModeration --> KeywordFilter
+InputModeration --> OpenAIModeration
+OutputModeration --> OutputContentMod
+OutputModeration --> SensitiveFilter
+
+TransportSecurity --> HTTPS
+NetworkProtection --> SSRFProxy
+NetworkProtection --> RateLimiting
+APISecurity --> APIRateLimit
+APISecurity --> RequestValidation
+
+Logging --> AccessLog
+Logging --> ErrorLog
+Logging --> SecurityLog
+ErrorTracking --> Sentry
+TracingSystem --> OpenTelemetry
+
+AuthFlow --> UserAuth
+AuthzFlow --> AccessControl
+ModerationFlow --> InputModeration
+ModerationFlow --> OutputModeration
+
+' Security Process Relationships
+AuthFlow --> UserAuth : "1. User request"
+AuthFlow --> SessionMgmt : "2. Verify credentials"
+AuthFlow --> JWT : "3. Generate token"
+AuthFlow --> AccessControl : "4. Authorize access"
+
+AuthzFlow --> AccessControl : "1. Receive request"
+AuthzFlow --> PermissionModel : "2. Check permissions"
+AuthzFlow --> ResourceAuth : "3. Verify operation"
+
+ModerationFlow --> InputModeration : "1. Receive content"
+ModerationFlow --> OutputModeration : "2. Moderate output"
+ModerationFlow --> ContentFiltering : "3. Filter content"
+
+note right of UserAuth
+  Authentication Methods:
+  - Email/Password login
+  - OAuth 2.0 (Google, GitHub, etc.)
+  - API Key
+  - Bearer Token
+end note
+
+note right of AccessControl
+  Access Control:
+  - Workspace-level isolation
+  - Application-level access control
+  - Dataset permission management
+  - Role-based permissions
+end note
+
+note right of DataEncryption
+  Data Encryption:
+  - HTTPS transport encryption
+  - Database storage encryption
+  - Sensitive data encryption storage
+  - Provider credential encryption
+end note
+
+note right of InputModeration
+  Content Security:
+  - Input content moderation
+  - Output content moderation
+  - Keyword filtering
+  - OpenAI Moderation integration
+end note
+
+note right of NetworkProtection
+  Network Security:
+  - HTTPS/TLS encryption
+  - SSRF protection proxy
+  - API rate limiting
+  - Request validation
+end note
+
+note right of Logging
+  Security Monitoring:
+  - Access log recording
+  - Error tracking (Sentry)
+  - Distributed tracing (OpenTelemetry)
+  - Security event audit
+end note
+
+@enduml
+

@@ -1,0 +1,146 @@
+@startuml Business Architecture View
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+title Dify Business Architecture View
+
+' Business Roles
+package "Business Roles" {
+  actor "Developer" as Developer
+  actor "End User" as EndUser
+  actor "Administrator" as Admin
+  actor "Workspace Member" as Member
+}
+
+' Business Capabilities
+package "Core Business Capabilities" {
+  component "LLM App Development Platform" as AppPlatform {
+    component "App Management" as AppMgmt
+    component "App Publishing" as AppPublish
+    component "App Configuration" as AppConfig
+  }
+  
+  component "Workflow Builder" as WorkflowBuilder {
+    component "Visual Editor" as VisualEditor
+    component "Workflow Engine" as WorkflowEngine
+    component "Node Library" as NodeLibrary
+  }
+  
+  component "RAG Pipeline" as RAGPipeline {
+    component "Document Import" as DocImport
+    component "Document Indexing" as DocIndex
+    component "Vector Retrieval" as VectorRetrieval
+  }
+  
+  component "Agent Capabilities" as AgentCap {
+    component "Function Calling" as FuncCall
+    component "ReAct Agent" as ReAct
+    component "Tool Integration" as ToolIntegration
+  }
+  
+  component "Model Management" as ModelMgmt {
+    component "Model Providers" as ModelProviders
+    component "Model Configuration" as ModelConfig
+    component "Model Switching" as ModelSwitch
+  }
+}
+
+' Business Processes
+package "Core Business Processes" {
+  rectangle "App Creation Process" as AppCreateProcess {
+    (1. Select App Type) as Step1
+    (2. Configure Prompt/Workflow) as Step2
+    (3. Select Model) as Step3
+    (4. Configure Dataset) as Step4
+    (5. Test App) as Step5
+    (6. Publish App) as Step6
+    
+    Step1 --> Step2
+    Step2 --> Step3
+    Step3 --> Step4
+    Step4 --> Step5
+    Step5 --> Step6
+  }
+  
+  rectangle "Dataset Import Process" as DatasetProcess {
+    (1. Upload Document) as DS1
+    (2. Parse Document) as DS2
+    (3. Chunk Document) as DS3
+    (4. Generate Embedding) as DS4
+    (5. Vector Indexing) as DS5
+    (6. Complete Import) as DS6
+    
+    DS1 --> DS2
+    DS2 --> DS3
+    DS3 --> DS4
+    DS4 --> DS5
+    DS5 --> DS6
+  }
+  
+  rectangle "Conversation Process" as ConversationProcess {
+    (1. User Input) as C1
+    (2. Content Moderation) as C2
+    (3. Retrieve Context) as C3
+    (4. Call LLM) as C4
+    (5. Output Moderation) as C5
+    (6. Return Result) as C6
+    
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C5 --> C6
+  }
+  
+  rectangle "Workflow Execution Process" as WorkflowProcess {
+    (1. Trigger Workflow) as W1
+    (2. Parse Nodes) as W2
+    (3. Execute Nodes) as W3
+    (4. Data Flow) as W4
+    (5. Complete Execution) as W5
+    
+    W1 --> W2
+    W2 --> W3
+    W3 --> W4
+    W4 --> W5
+  }
+}
+
+' Business Value
+package "Business Value" {
+  component "Rapid Prototyping to Production" as RapidProto
+  component "Reduce Development Cost" as ReduceCost
+  component "Improve Development Efficiency" as ImproveEff
+  component "Unified Model Management" as UnifiedModel
+}
+
+' Relationships
+Developer --> AppPlatform
+Developer --> WorkflowBuilder
+Developer --> RAGPipeline
+Developer --> AgentCap
+Developer --> ModelMgmt
+
+EndUser --> AppPlatform
+EndUser --> ConversationProcess
+
+Admin --> ModelMgmt
+Admin --> AppPlatform
+
+Member --> AppPlatform
+Member --> RAGPipeline
+
+AppPlatform --> AppCreateProcess
+RAGPipeline --> DatasetProcess
+AppPlatform --> ConversationProcess
+WorkflowBuilder --> WorkflowProcess
+
+AppCreateProcess --> RapidProto
+DatasetProcess --> ReduceCost
+ConversationProcess --> ImproveEff
+ModelMgmt --> UnifiedModel
+
+@enduml
+

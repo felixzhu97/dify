@@ -1,0 +1,238 @@
+@startuml Technology Architecture View
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+title Dify Technology Architecture View
+
+' Frontend Technology Stack
+package "Frontend Technology Stack" {
+  component "Next.js 15" as NextJS {
+    component "React 19" as React
+    component "TypeScript" as TypeScript
+    component "Tailwind CSS" as Tailwind
+    component "SWR" as SWR
+    component "Zustand" as Zustand
+  }
+  
+  component "Build Tools" as BuildTools {
+    component "pnpm" as pnpm
+    component "Webpack" as Webpack
+    component "ESLint" as ESLint
+  }
+}
+
+' Backend Technology Stack
+package "Backend Technology Stack" {
+  component "Python 3.x" as Python {
+    component "Flask" as Flask
+    component "SQLAlchemy" as SQLAlchemy
+    component "Celery" as Celery
+    component "Gunicorn" as Gunicorn
+    component "Gevent" as Gevent
+  }
+  
+  component "Dependency Management" as DepMgmt {
+    component "uv" as uv
+    component "pyproject.toml" as pyproject
+  }
+  
+  component "Code Quality" as CodeQuality {
+    component "Ruff" as Ruff
+    component "BasedPyright" as BasedPyright
+    component "pytest" as pytest
+  }
+}
+
+' Middleware Layer
+package "Middleware Layer" {
+  database "Relational Database" as RelationalDB {
+    component "PostgreSQL" as PostgreSQL
+    component "MySQL" as MySQL
+    component "pgvector" as pgvector
+  }
+  
+  database "Vector Database" as VectorDB {
+    component "Weaviate" as Weaviate
+    component "Qdrant" as Qdrant
+    component "Milvus" as Milvus
+  }
+  
+  database "Cache Database" as CacheDB {
+    component "Redis" as Redis {
+      component "Redis Sentinel" as RedisSentinel
+      component "Redis Cluster" as RedisCluster
+    }
+  }
+  
+  component "Message Queue" as MessageQueue {
+    component "Celery Broker" as CeleryBroker
+  }
+  
+  component "Object Storage" as ObjectStorage {
+    component "Local Filesystem" as LocalFS
+    component "S3 Compatible" as S3Storage
+  }
+}
+
+' Deployment Architecture
+package "Deployment Architecture" {
+  component "Containerization" as Containerization {
+    component "Docker" as Docker
+    component "Docker Compose" as DockerCompose
+  }
+  
+  component "Kubernetes" as Kubernetes {
+    component "Helm Charts" as Helm
+    component "YAML Config" as YAMLConfig
+  }
+  
+  component "Reverse Proxy" as ReverseProxy {
+    component "Nginx" as Nginx
+  }
+  
+  component "Load Balancer" as LoadBalancer {
+    component "Application LB" as AppLB
+    component "DB Connection Pool" as DBPool
+  }
+}
+
+' Infrastructure Layer
+package "Infrastructure Layer" {
+  component "Compute Resources" as Compute {
+    component "CPU" as CPU
+    component "Memory" as Memory
+    component "Storage" as Storage
+  }
+  
+  component "Network" as Network {
+    component "HTTP/HTTPS" as HTTP
+    component "WebSocket" as WebSocket
+    component "TCP/IP" as TCPIP
+  }
+  
+  component "Monitoring & Logging" as Monitoring {
+    component "OpenTelemetry" as OpenTelemetry
+    component "Sentry" as Sentry
+    component "Logging System" as Logging
+  }
+}
+
+' External Service Integration
+package "External Service Integration" {
+  component "LLM API" as LLMAPI {
+    component "OpenAI API" as OpenAIAPI
+    component "Anthropic API" as AnthropicAPI
+    component "Self-hosted API" as SelfHostedAPI
+  }
+  
+  component "Third-party Services" as ThirdParty {
+    component "Email Service" as EmailService
+    component "OAuth Service" as OAuthService
+  }
+}
+
+' Deployment Topology
+package "Deployment Topology" {
+  node "Web Layer" as WebLayer {
+    component "Nginx" as NginxNode
+    component "Next.js App" as NextJSNode
+  }
+  
+  node "API Layer" as APILayer {
+    component "Gunicorn" as GunicornNode
+    component "Flask App" as FlaskNode
+  }
+  
+  node "Worker Layer" as WorkerLayer {
+    component "Celery Worker" as CeleryWorkerNode
+    component "Celery Beat" as CeleryBeatNode
+  }
+  
+  node "Data Layer" as DataLayer {
+    component "PostgreSQL" as PostgreSQLNode
+    component "Redis" as RedisNode
+    component "Weaviate" as WeaviateNode
+  }
+}
+
+' Relationships
+NextJS --> React
+NextJS --> TypeScript
+NextJS --> Tailwind
+NextJS --> SWR
+NextJS --> Zustand
+
+Python --> Flask
+Python --> SQLAlchemy
+Python --> Celery
+Python --> Gunicorn
+Python --> Gevent
+
+Flask --> RelationalDB
+Flask --> CacheDB
+Flask --> MessageQueue
+Celery --> MessageQueue
+Celery --> CacheDB
+
+SQLAlchemy --> PostgreSQL
+SQLAlchemy --> MySQL
+
+Containerization --> Docker
+Containerization --> DockerCompose
+Kubernetes --> Helm
+Kubernetes --> YAMLConfig
+
+Nginx --> NextJSNode
+Nginx --> FlaskNode
+GunicornNode --> FlaskNode
+CeleryWorkerNode --> FlaskNode
+CeleryBeatNode --> FlaskNode
+
+FlaskNode --> PostgreSQLNode
+FlaskNode --> RedisNode
+FlaskNode --> WeaviateNode
+
+NextJSNode --> FlaskNode
+FlaskNode --> LLMAPI
+FlaskNode --> ThirdParty
+
+FlaskNode --> Monitoring
+NextJSNode --> Monitoring
+
+note right of NextJS
+  Frontend Technology Stack:
+  - Next.js 15 (App Router)
+  - React 19 (Server Components)
+  - TypeScript (type safety)
+  - Tailwind CSS (atomic CSS)
+end note
+
+note right of Python
+  Backend Technology Stack:
+  - Python 3.x
+  - Flask (lightweight web framework)
+  - SQLAlchemy (ORM)
+  - Celery (async tasks)
+  - Gunicorn + Gevent (WSGI server)
+end note
+
+note right of Containerization
+  Deployment Methods:
+  - Docker containerization
+  - Docker Compose (dev/small scale)
+  - Kubernetes (production/large scale)
+  - Helm Charts (K8s deployment)
+end note
+
+note right of DataLayer
+  Data Storage:
+  - PostgreSQL/MySQL (relational data)
+  - Redis (cache and queue)
+  - Weaviate/Qdrant/Milvus (vector data)
+  - Object storage (files)
+end note
+
+@enduml
+

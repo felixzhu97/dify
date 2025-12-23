@@ -1,0 +1,192 @@
+@startuml Data Architecture View
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+title Dify Data Architecture View
+
+' Data Storage Layer
+package "Data Storage Layer" {
+  component "Relational Database" as RelationalDB {
+    component "PostgreSQL" as PostgreSQL
+    component "MySQL" as MySQL
+  }
+  
+  component "Vector Database" as VectorDB {
+    component "Weaviate" as Weaviate
+    component "Qdrant" as Qdrant
+    component "Milvus" as Milvus
+    component "Chroma" as Chroma
+  }
+  
+  component "Cache Database" as CacheDB {
+    component "Redis" as Redis
+  }
+  
+  component "Object Storage" as ObjectStorage {
+    component "Local Storage" as LocalStorage
+    component "S3 Compatible" as S3Storage
+  }
+}
+
+' Data Model Layer
+package "Core Data Models" {
+  component "Account Model" as Account
+  component "Workspace Model" as Workspace
+  component "App Model" as App
+  component "Dataset Model" as Dataset
+  component "Document Model" as Document
+  component "DocumentSegment Model" as DocumentSegment
+  component "Conversation Model" as Conversation
+  component "Message Model" as Message
+  component "Workflow Model" as Workflow
+  component "Model Config" as Model
+  component "Provider Model" as Provider
+}
+
+' Data Flow Components
+package "Data Flow Components" {
+  component "Document Import Flow" as DocImportFlow
+  component "Conversation Flow" as ConversationFlow
+  component "Workflow Execution Flow" as WorkflowFlow
+  component "Model Invocation Flow" as ModelFlow
+}
+
+' Data Access Layer
+package "Data Access Layer" {
+  component "Repository Layer" as RepoLayer {
+    component "App Repository" as AppRepo
+    component "Dataset Repository" as DatasetRepo
+    component "Document Repository" as DocRepo
+    component "Workflow Repository" as WorkflowRepo
+  }
+  
+  component "ORM Layer" as ORMLayer {
+    component "SQLAlchemy" as SQLAlchemy
+  }
+}
+
+' Data Relationships
+Account --> Workspace : "owns"
+Workspace --> App : "contains"
+Workspace --> Dataset : "contains"
+App --> Conversation : "generates"
+App --> Workflow : "uses"
+Dataset --> Document : "contains"
+Document --> DocumentSegment : "contains"
+Conversation --> Message : "contains"
+App --> Model : "uses"
+Model --> Provider : "belongs to"
+
+' Storage Mapping
+Account --> PostgreSQL : "stores"
+Workspace --> PostgreSQL : "stores"
+App --> PostgreSQL : "stores"
+Dataset --> PostgreSQL : "stores"
+Document --> PostgreSQL : "stores"
+DocumentSegment --> PostgreSQL : "stores"
+Conversation --> PostgreSQL : "stores"
+Message --> PostgreSQL : "stores"
+Workflow --> PostgreSQL : "stores"
+Model --> PostgreSQL : "stores"
+Provider --> PostgreSQL : "stores"
+
+DocumentSegment --> Weaviate : "vector storage"
+DocumentSegment --> Qdrant : "vector storage"
+DocumentSegment --> Milvus : "vector storage"
+Document --> ObjectStorage : "file storage"
+
+Conversation --> Redis : "cache"
+Message --> Redis : "cache"
+Workflow --> Redis : "intermediate results"
+
+' Data Flow Relationships
+DocImportFlow --> ObjectStorage : "1. Upload document"
+DocImportFlow --> Document : "2. Parse document"
+DocImportFlow --> DocumentSegment : "3. Chunk processing"
+DocImportFlow --> Weaviate : "4. Vector storage"
+DocImportFlow --> PostgreSQL : "5. Update metadata"
+
+ConversationFlow --> PostgreSQL : "1. Store message"
+ConversationFlow --> Weaviate : "2. Retrieve document"
+ConversationFlow --> PostgreSQL : "3. Store reply"
+ConversationFlow --> Redis : "4. Cache context"
+
+WorkflowFlow --> PostgreSQL : "1. Load definition"
+WorkflowFlow --> Redis : "2. Store intermediate results"
+WorkflowFlow --> PostgreSQL : "3. Store final result"
+
+ModelFlow --> PostgreSQL : "1. Load configuration"
+ModelFlow --> Redis : "2. Check cache"
+ModelFlow --> PostgreSQL : "3. Store response"
+
+' Repository Relationships
+AppRepo --> App
+DatasetRepo --> Dataset
+DocRepo --> Document
+WorkflowRepo --> Workflow
+AppRepo --> SQLAlchemy
+DatasetRepo --> SQLAlchemy
+DocRepo --> SQLAlchemy
+WorkflowRepo --> SQLAlchemy
+SQLAlchemy --> PostgreSQL
+
+note right of RelationalDB
+  Relational Database stores:
+  - User and account information
+  - Application configuration
+  - Dataset metadata
+  - Conversations and messages
+  - Workflow definitions
+  - Model configuration
+end note
+
+note right of VectorDB
+  Vector Database stores:
+  - Document segment embeddings
+  - Supports similarity search
+  - Supports hybrid search
+end note
+
+note right of CacheDB
+  Redis Cache stores:
+  - Session information
+  - Celery task queues
+  - Temporary data
+  - Conversation context
+end note
+
+note right of ObjectStorage
+  Object Storage stores:
+  - Original document files
+  - Images and audio
+  - User uploaded files
+end note
+
+note bottom of Account
+  Core fields:
+  - id, name, email
+  - password_hash
+  - interface_language
+  - created_at, updated_at
+end note
+
+note bottom of App
+  Core fields:
+  - id, name, mode
+  - model_config
+  - workspace_id
+  - status, created_at
+end note
+
+note bottom of DocumentSegment
+  Core fields:
+  - id, document_id
+  - content, word_count
+  - index_node_id
+  - status, created_at
+end note
+
+@enduml
+

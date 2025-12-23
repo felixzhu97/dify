@@ -1,0 +1,223 @@
+@startuml Application Architecture View
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+title Dify Application Architecture View
+
+' Presentation Layer
+package "Presentation Layer" {
+  component "Web Console" as WebConsole {
+    component "App Management UI" as AppUI
+    component "Dataset Management UI" as DatasetUI
+    component "Workflow Editor" as WorkflowUI
+    component "Model Config UI" as ModelUI
+  }
+  
+  component "Web App" as WebApp {
+    component "Chat Interface" as ChatUI
+    component "Completion Interface" as CompletionUI
+    component "Workflow Interface" as WorkflowAppUI
+  }
+}
+
+' API Layer
+package "API Service Layer" {
+  component "Console API" as ConsoleAPI {
+    component "App Management API" as AppAPI
+    component "Dataset API" as DatasetAPI
+    component "Workflow API" as WorkflowAPI
+    component "Model Management API" as ModelMgmtAPI
+    component "User Management API" as UserAPI
+  }
+  
+  component "Service API" as ServiceAPI {
+    component "App Service API" as AppServiceAPI
+    component "Conversation API" as ConversationAPI
+    component "Message API" as MessageAPI
+  }
+  
+  component "Web API" as WebAPI {
+    component "Public Conversation API" as PublicConvAPI
+    component "Public Completion API" as PublicCompAPI
+  }
+  
+  component "Inner API" as InnerAPI {
+    component "Internal Service API" as InternalAPI
+    component "Plugin API" as PluginAPI
+  }
+}
+
+' Application Service Layer
+package "Application Service Layer" {
+  component "Core Business Services" {
+    component "App Service" as AppService
+    component "Conversation Service" as ConversationService
+    component "Message Service" as MessageService
+    component "Dataset Service" as DatasetService
+    component "Workflow Service" as WorkflowService
+    component "Model Service" as ModelService
+  }
+  
+  component "Domain Services" {
+    component "Agent Service" as AgentService {
+      component "Function Calling Agent" as FCAgent
+      component "ReAct Agent" as ReActAgent
+      component "CoT Agent" as CoTAgent
+    }
+    
+    component "RAG Service" as RAGService {
+      component "Document Processing" as DocProcessing
+      component "Vector Retrieval" as VectorRetrieval
+      component "Reranking" as Reranking
+    }
+    
+    component "Workflow Engine" as WorkflowEngine {
+      component "Node Executor" as NodeExecutor
+      component "Data Flow" as DataFlow
+      component "State Management" as StateMgmt
+    }
+    
+    component "Model Runtime" as ModelRuntime {
+      component "Provider Management" as ProviderMgmt
+      component "Model Invocation" as ModelInvocation
+      component "Streaming Output" as Streaming
+    }
+    
+    component "Plugin System" as PluginSystem {
+      component "Plugin Management" as PluginMgmt
+      component "Plugin Execution" as PluginExec
+    }
+  }
+}
+
+' Async Task Layer
+package "Async Task Layer" {
+  component "Celery Worker" as CeleryWorker {
+    component "Dataset Import Task" as DatasetTask
+    component "Document Indexing Task" as IndexTask
+    component "Email Task" as EmailTask
+    component "Workflow Execution Task" as WorkflowTask
+    component "App Deletion Task" as AppDeletionTask
+    component "Scheduled Task" as ScheduledTask
+  }
+  
+  component "Celery Beat" as CeleryBeat
+}
+
+' Data Access Layer
+package "Data Access Layer" {
+  component "Repository Layer" as RepoLayer {
+    component "App Repository" as AppRepo
+    component "Dataset Repository" as DatasetRepo
+    component "Document Repository" as DocRepo
+    component "Workflow Repository" as WorkflowRepo
+  }
+  
+  component "ORM Layer" as ORMLayer {
+    component "SQLAlchemy" as SQLAlchemy
+  }
+}
+
+' External Integration
+package "External Integration" {
+  component "LLM Providers" as LLMProviders {
+    component "OpenAI" as OpenAI
+    component "Anthropic" as Anthropic
+    component "Self-hosted Models" as SelfHosted
+  }
+  
+  component "Vector Database" as VectorDB {
+    component "Weaviate" as Weaviate
+    component "Qdrant" as Qdrant
+    component "Milvus" as Milvus
+  }
+  
+  component "Tool Integration" as Tools {
+    component "Google Search" as GoogleSearch
+    component "DALL·E" as DALLE
+    component "WolframAlpha" as WolframAlpha
+  }
+}
+
+' Relationships
+WebConsole --> ConsoleAPI
+WebApp --> ServiceAPI
+WebApp --> WebAPI
+
+ConsoleAPI --> AppService
+ConsoleAPI --> DatasetService
+ConsoleAPI --> WorkflowService
+ConsoleAPI --> ModelService
+
+ServiceAPI --> ConversationService
+ServiceAPI --> MessageService
+ServiceAPI --> AppService
+
+WebAPI --> ConversationService
+WebAPI --> AppService
+
+InnerAPI --> InternalAPI
+InnerAPI --> PluginAPI
+
+AppService --> AgentService
+AppService --> RAGService
+AppService --> WorkflowEngine
+AppService --> ModelRuntime
+
+ConversationService --> AgentService
+ConversationService --> RAGService
+ConversationService --> ModelRuntime
+
+WorkflowService --> WorkflowEngine
+DatasetService --> RAGService
+
+AgentService --> PluginSystem
+WorkflowEngine --> PluginSystem
+
+CeleryWorker --> DatasetService
+CeleryWorker --> WorkflowService
+CeleryWorker --> AppService
+CeleryBeat --> CeleryWorker
+
+AppService --> AppRepo
+DatasetService --> DatasetRepo
+WorkflowService --> WorkflowRepo
+DatasetService --> DocRepo
+
+AppRepo --> SQLAlchemy
+DatasetRepo --> SQLAlchemy
+WorkflowRepo --> SQLAlchemy
+DocRepo --> SQLAlchemy
+
+ModelRuntime --> LLMProviders
+RAGService --> VectorDB
+AgentService --> Tools
+
+note right of AgentService
+  Agent Service supports multiple strategies:
+  - Function Calling
+  - ReAct
+  - Chain of Thought
+end note
+
+note right of RAGService
+  RAG Service includes:
+  - Document extraction
+  - Document chunking
+  - Vectorization
+  - Retrieval
+  - Reranking
+end note
+
+note right of WorkflowEngine
+  Workflow Engine supports:
+  - Visual nodes
+  - Data flow
+  - Conditional branches
+  - Loop execution
+end note
+
+@enduml
+
