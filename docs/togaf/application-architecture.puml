@@ -1,0 +1,223 @@
+@startuml 应用架构视图
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+
+title Dify 应用架构视图 (Application Architecture)
+
+' 用户层
+package "用户界面层 (Presentation Layer)" {
+  component "Web Console\n(管理控制台)" as WebConsole {
+    component "应用管理界面\n(App Management UI)" as AppUI
+    component "数据集管理界面\n(Dataset Management UI)" as DatasetUI
+    component "工作流编辑器\n(Workflow Editor)" as WorkflowUI
+    component "模型配置界面\n(Model Config UI)" as ModelUI
+  }
+  
+  component "Web App\n(终端应用)" as WebApp {
+    component "聊天界面\n(Chat Interface)" as ChatUI
+    component "完成界面\n(Completion Interface)" as CompletionUI
+    component "工作流界面\n(Workflow Interface)" as WorkflowAppUI
+  }
+}
+
+' API层
+package "API服务层 (API Service Layer)" {
+  component "Console API\n(管理API)" as ConsoleAPI {
+    component "应用管理API\n(App Management API)" as AppAPI
+    component "数据集API\n(Dataset API)" as DatasetAPI
+    component "工作流API\n(Workflow API)" as WorkflowAPI
+    component "模型管理API\n(Model Management API)" as ModelMgmtAPI
+    component "用户管理API\n(User Management API)" as UserAPI
+  }
+  
+  component "Service API\n(服务API)" as ServiceAPI {
+    component "应用服务API\n(App Service API)" as AppServiceAPI
+    component "对话API\n(Conversation API)" as ConversationAPI
+    component "消息API\n(Message API)" as MessageAPI
+  }
+  
+  component "Web API\n(公开API)" as WebAPI {
+    component "公开对话API\n(Public Conversation API)" as PublicConvAPI
+    component "公开完成API\n(Public Completion API)" as PublicCompAPI
+  }
+  
+  component "Inner API\n(内部API)" as InnerAPI {
+    component "内部服务API\n(Internal Service API)" as InternalAPI
+    component "插件API\n(Plugin API)" as PluginAPI
+  }
+}
+
+' 应用服务层
+package "应用服务层 (Application Service Layer)" {
+  component "核心业务服务 (Core Business Services)" {
+    component "应用服务\n(App Service)" as AppService
+    component "对话服务\n(Conversation Service)" as ConversationService
+    component "消息服务\n(Message Service)" as MessageService
+    component "数据集服务\n(Dataset Service)" as DatasetService
+    component "工作流服务\n(Workflow Service)" as WorkflowService
+    component "模型服务\n(Model Service)" as ModelService
+  }
+  
+  component "领域服务 (Domain Services)" {
+    component "Agent服务\n(Agent Service)" as AgentService {
+      component "Function Calling Agent\n(FC Agent)" as FCAgent
+      component "ReAct Agent\n(ReAct Agent)" as ReActAgent
+      component "CoT Agent\n(CoT Agent)" as CoTAgent
+    }
+    
+    component "RAG服务\n(RAG Service)" as RAGService {
+      component "文档处理\n(Document Processing)" as DocProcessing
+      component "向量检索\n(Vector Retrieval)" as VectorRetrieval
+      component "重排序\n(Reranking)" as Reranking
+    }
+    
+    component "工作流引擎\n(Workflow Engine)" as WorkflowEngine {
+      component "节点执行器\n(Node Executor)" as NodeExecutor
+      component "数据流转\n(Data Flow)" as DataFlow
+      component "状态管理\n(State Management)" as StateMgmt
+    }
+    
+    component "模型运行时\n(Model Runtime)" as ModelRuntime {
+      component "模型提供商管理\n(Provider Management)" as ProviderMgmt
+      component "模型调用\n(Model Invocation)" as ModelInvocation
+      component "流式输出\n(Streaming Output)" as Streaming
+    }
+    
+    component "插件系统\n(Plugin System)" as PluginSystem {
+      component "插件管理\n(Plugin Management)" as PluginMgmt
+      component "插件执行\n(Plugin Execution)" as PluginExec
+    }
+  }
+}
+
+' 异步任务层
+package "异步任务层 (Async Task Layer)" {
+  component "Celery Worker\n(异步任务处理器)" as CeleryWorker {
+    component "数据集导入任务\n(Dataset Import Task)" as DatasetTask
+    component "文档索引任务\n(Document Indexing Task)" as IndexTask
+    component "邮件任务\n(Email Task)" as EmailTask
+    component "工作流执行任务\n(Workflow Execution Task)" as WorkflowTask
+    component "应用删除任务\n(App Deletion Task)" as AppDeletionTask
+    component "定时任务\n(Scheduled Task)" as ScheduledTask
+  }
+  
+  component "Celery Beat\n(定时任务调度器)" as CeleryBeat
+}
+
+' 数据访问层
+package "数据访问层 (Data Access Layer)" {
+  component "Repository层\n(Repository Layer)" as RepoLayer {
+    component "应用Repository\n(App Repository)" as AppRepo
+    component "数据集Repository\n(Dataset Repository)" as DatasetRepo
+    component "文档Repository\n(Document Repository)" as DocRepo
+    component "工作流Repository\n(Workflow Repository)" as WorkflowRepo
+  }
+  
+  component "ORM层\n(ORM Layer)" as ORMLayer {
+    component "SQLAlchemy\n(ORM Framework)" as SQLAlchemy
+  }
+}
+
+' 外部集成
+package "外部集成 (External Integration)" {
+  component "LLM提供商\n(LLM Providers)" as LLMProviders {
+    component "OpenAI\n(OpenAI)" as OpenAI
+    component "Anthropic\n(Anthropic)" as Anthropic
+    component "自托管模型\n(Self-hosted Models)" as SelfHosted
+  }
+  
+  component "向量数据库\n(Vector Database)" as VectorDB {
+    component "Weaviate\n(Weaviate)" as Weaviate
+    component "Qdrant\n(Qdrant)" as Qdrant
+    component "Milvus\n(Milvus)" as Milvus
+  }
+  
+  component "工具集成\n(Tool Integration)" as Tools {
+    component "Google Search\n(Google Search)" as GoogleSearch
+    component "DALL·E\n(DALL·E)" as DALLE
+    component "WolframAlpha\n(WolframAlpha)" as WolframAlpha
+  }
+}
+
+' 关系
+WebConsole --> ConsoleAPI
+WebApp --> ServiceAPI
+WebApp --> WebAPI
+
+ConsoleAPI --> AppService
+ConsoleAPI --> DatasetService
+ConsoleAPI --> WorkflowService
+ConsoleAPI --> ModelService
+
+ServiceAPI --> ConversationService
+ServiceAPI --> MessageService
+ServiceAPI --> AppService
+
+WebAPI --> ConversationService
+WebAPI --> AppService
+
+InnerAPI --> InternalAPI
+InnerAPI --> PluginAPI
+
+AppService --> AgentService
+AppService --> RAGService
+AppService --> WorkflowEngine
+AppService --> ModelRuntime
+
+ConversationService --> AgentService
+ConversationService --> RAGService
+ConversationService --> ModelRuntime
+
+WorkflowService --> WorkflowEngine
+DatasetService --> RAGService
+
+AgentService --> PluginSystem
+WorkflowEngine --> PluginSystem
+
+CeleryWorker --> DatasetService
+CeleryWorker --> WorkflowService
+CeleryWorker --> AppService
+CeleryBeat --> CeleryWorker
+
+AppService --> AppRepo
+DatasetService --> DatasetRepo
+WorkflowService --> WorkflowRepo
+DatasetService --> DocRepo
+
+AppRepo --> SQLAlchemy
+DatasetRepo --> SQLAlchemy
+WorkflowRepo --> SQLAlchemy
+DocRepo --> SQLAlchemy
+
+ModelRuntime --> LLMProviders
+RAGService --> VectorDB
+AgentService --> Tools
+
+note right of AgentService
+  Agent服务支持多种策略：
+  - Function Calling
+  - ReAct
+  - Chain of Thought
+end note
+
+note right of RAGService
+  RAG服务包含：
+  - 文档提取
+  - 文档分块
+  - 向量化
+  - 检索
+  - 重排序
+end note
+
+note right of WorkflowEngine
+  工作流引擎支持：
+  - 可视化节点
+  - 数据流转
+  - 条件分支
+  - 循环执行
+end note
+
+@enduml
+

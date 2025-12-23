@@ -1,0 +1,146 @@
+@startuml 业务架构视图
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 12
+
+title Dify 业务架构视图 (Business Architecture)
+
+' 业务角色
+package "业务角色 (Business Roles)" {
+  actor "开发者\n(Developer)" as Developer
+  actor "终端用户\n(End User)" as EndUser
+  actor "管理员\n(Administrator)" as Admin
+  actor "工作空间成员\n(Workspace Member)" as Member
+}
+
+' 业务能力
+package "核心业务能力 (Core Business Capabilities)" {
+  component "LLM应用开发平台\n(LLM App Development Platform)" as AppPlatform {
+    component "应用管理\n(App Management)" as AppMgmt
+    component "应用发布\n(App Publishing)" as AppPublish
+    component "应用配置\n(App Configuration)" as AppConfig
+  }
+  
+  component "工作流构建\n(Workflow Builder)" as WorkflowBuilder {
+    component "可视化编辑器\n(Visual Editor)" as VisualEditor
+    component "工作流执行引擎\n(Workflow Engine)" as WorkflowEngine
+    component "节点库\n(Node Library)" as NodeLibrary
+  }
+  
+  component "RAG管道\n(RAG Pipeline)" as RAGPipeline {
+    component "文档导入\n(Document Import)" as DocImport
+    component "文档索引\n(Document Indexing)" as DocIndex
+    component "向量检索\n(Vector Retrieval)" as VectorRetrieval
+  }
+  
+  component "Agent能力\n(Agent Capabilities)" as AgentCap {
+    component "Function Calling\n(Function Calling)" as FuncCall
+    component "ReAct Agent\n(ReAct Agent)" as ReAct
+    component "工具集成\n(Tool Integration)" as ToolIntegration
+  }
+  
+  component "模型管理\n(Model Management)" as ModelMgmt {
+    component "模型提供商\n(Model Providers)" as ModelProviders
+    component "模型配置\n(Model Configuration)" as ModelConfig
+    component "模型切换\n(Model Switching)" as ModelSwitch
+  }
+}
+
+' 业务流程
+package "核心业务流程 (Core Business Processes)" {
+  rectangle "应用创建流程\n(App Creation Process)" as AppCreateProcess {
+    (1. 选择应用类型) as Step1
+    (2. 配置提示词/工作流) as Step2
+    (3. 选择模型) as Step3
+    (4. 配置数据集) as Step4
+    (5. 测试应用) as Step5
+    (6. 发布应用) as Step6
+    
+    Step1 --> Step2
+    Step2 --> Step3
+    Step3 --> Step4
+    Step4 --> Step5
+    Step5 --> Step6
+  }
+  
+  rectangle "数据集导入流程\n(Dataset Import Process)" as DatasetProcess {
+    (1. 上传文档) as DS1
+    (2. 文档解析) as DS2
+    (3. 文档分块) as DS3
+    (4. 生成嵌入) as DS4
+    (5. 向量索引) as DS5
+    (6. 完成导入) as DS6
+    
+    DS1 --> DS2
+    DS2 --> DS3
+    DS3 --> DS4
+    DS4 --> DS5
+    DS5 --> DS6
+  }
+  
+  rectangle "对话流程\n(Conversation Process)" as ConversationProcess {
+    (1. 用户输入) as C1
+    (2. 内容审核) as C2
+    (3. 检索上下文) as C3
+    (4. 调用LLM) as C4
+    (5. 输出审核) as C5
+    (6. 返回结果) as C6
+    
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C5 --> C6
+  }
+  
+  rectangle "工作流执行流程\n(Workflow Execution Process)" as WorkflowProcess {
+    (1. 触发工作流) as W1
+    (2. 解析节点) as W2
+    (3. 执行节点) as W3
+    (4. 数据流转) as W4
+    (5. 完成执行) as W5
+    
+    W1 --> W2
+    W2 --> W3
+    W3 --> W4
+    W4 --> W5
+  }
+}
+
+' 业务价值
+package "业务价值 (Business Value)" {
+  component "快速原型到生产\n(Rapid Prototyping to Production)" as RapidProto
+  component "降低开发成本\n(Reduce Development Cost)" as ReduceCost
+  component "提高开发效率\n(Improve Development Efficiency)" as ImproveEff
+  component "统一模型管理\n(Unified Model Management)" as UnifiedModel
+}
+
+' 关系
+Developer --> AppPlatform
+Developer --> WorkflowBuilder
+Developer --> RAGPipeline
+Developer --> AgentCap
+Developer --> ModelMgmt
+
+EndUser --> AppPlatform
+EndUser --> ConversationProcess
+
+Admin --> ModelMgmt
+Admin --> AppPlatform
+
+Member --> AppPlatform
+Member --> RAGPipeline
+
+AppPlatform --> AppCreateProcess
+RAGPipeline --> DatasetProcess
+AppPlatform --> ConversationProcess
+WorkflowBuilder --> WorkflowProcess
+
+AppCreateProcess --> RapidProto
+DatasetProcess --> ReduceCost
+ConversationProcess --> ImproveEff
+ModelMgmt --> UnifiedModel
+
+@enduml
+

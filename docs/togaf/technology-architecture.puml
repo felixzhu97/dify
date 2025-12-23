@@ -1,0 +1,238 @@
+@startuml 技术架构视图
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+
+title Dify 技术架构视图 (Technology Architecture)
+
+' 前端技术栈
+package "前端技术栈 (Frontend Technology Stack)" {
+  component "Next.js 15\n(React框架)" as NextJS {
+    component "React 19\n(UI库)" as React
+    component "TypeScript\n(类型系统)" as TypeScript
+    component "Tailwind CSS\n(样式框架)" as Tailwind
+    component "SWR\n(数据获取)" as SWR
+    component "Zustand\n(状态管理)" as Zustand
+  }
+  
+  component "构建工具\n(Build Tools)" as BuildTools {
+    component "pnpm\n(包管理器)" as pnpm
+    component "Webpack\n(模块打包)" as Webpack
+    component "ESLint\n(代码检查)" as ESLint
+  }
+}
+
+' 后端技术栈
+package "后端技术栈 (Backend Technology Stack)" {
+  component "Python 3.x\n(Python运行时)" as Python {
+    component "Flask\n(Web框架)" as Flask
+    component "SQLAlchemy\n(ORM框架)" as SQLAlchemy
+    component "Celery\n(异步任务)" as Celery
+    component "Gunicorn\n(WSGI服务器)" as Gunicorn
+    component "Gevent\n(异步库)" as Gevent
+  }
+  
+  component "依赖管理\n(Dependency Management)" as DepMgmt {
+    component "uv\n(包管理器)" as uv
+    component "pyproject.toml\n(项目配置)" as pyproject
+  }
+  
+  component "代码质量\n(Code Quality)" as CodeQuality {
+    component "Ruff\n(代码检查)" as Ruff
+    component "BasedPyright\n(类型检查)" as BasedPyright
+    component "pytest\n(测试框架)" as pytest
+  }
+}
+
+' 中间件层
+package "中间件层 (Middleware Layer)" {
+  database "关系数据库\n(Relational Database)" as RelationalDB {
+    component "PostgreSQL\n(PostgreSQL)" as PostgreSQL
+    component "MySQL\n(MySQL)" as MySQL
+    component "pgvector\n(向量扩展)" as pgvector
+  }
+  
+  database "向量数据库\n(Vector Database)" as VectorDB {
+    component "Weaviate\n(Weaviate)" as Weaviate
+    component "Qdrant\n(Qdrant)" as Qdrant
+    component "Milvus\n(Milvus)" as Milvus
+  }
+  
+  database "缓存数据库\n(Cache Database)" as CacheDB {
+    component "Redis\n(Redis)" as Redis {
+      component "Redis Sentinel\n(高可用)" as RedisSentinel
+      component "Redis Cluster\n(集群)" as RedisCluster
+    }
+  }
+  
+  component "消息队列\n(Message Queue)" as MessageQueue {
+    component "Celery Broker\n(Redis/RabbitMQ)" as CeleryBroker
+  }
+  
+  component "对象存储\n(Object Storage)" as ObjectStorage {
+    component "本地文件系统\n(Local Filesystem)" as LocalFS
+    component "S3兼容存储\n(S3 Compatible)" as S3Storage
+  }
+}
+
+' 部署架构
+package "部署架构 (Deployment Architecture)" {
+  component "容器化\n(Containerization)" as Containerization {
+    component "Docker\n(Docker容器)" as Docker
+    component "Docker Compose\n(容器编排)" as DockerCompose
+  }
+  
+  component "Kubernetes\n(K8s编排)" as Kubernetes {
+    component "Helm Charts\n(Helm部署)" as Helm
+    component "YAML配置\n(YAML Config)" as YAMLConfig
+  }
+  
+  component "反向代理\n(Reverse Proxy)" as ReverseProxy {
+    component "Nginx\n(Nginx)" as Nginx
+  }
+  
+  component "负载均衡\n(Load Balancer)" as LoadBalancer {
+    component "应用负载均衡\n(Application LB)" as AppLB
+    component "数据库连接池\n(DB Connection Pool)" as DBPool
+  }
+}
+
+' 基础设施层
+package "基础设施层 (Infrastructure Layer)" {
+  component "计算资源\n(Compute Resources)" as Compute {
+    component "CPU\n(处理器)" as CPU
+    component "内存\n(Memory)" as Memory
+    component "存储\n(Storage)" as Storage
+  }
+  
+  component "网络\n(Network)" as Network {
+    component "HTTP/HTTPS\n(HTTP协议)" as HTTP
+    component "WebSocket\n(WebSocket协议)" as WebSocket
+    component "TCP/IP\n(TCP/IP协议)" as TCPIP
+  }
+  
+  component "监控和日志\n(Monitoring & Logging)" as Monitoring {
+    component "OpenTelemetry\n(追踪)" as OpenTelemetry
+    component "Sentry\n(错误追踪)" as Sentry
+    component "日志系统\n(Logging System)" as Logging
+  }
+}
+
+' 外部服务集成
+package "外部服务集成 (External Service Integration)" {
+  component "LLM API\n(LLM API)" as LLMAPI {
+    component "OpenAI API\n(OpenAI)" as OpenAIAPI
+    component "Anthropic API\n(Anthropic)" as AnthropicAPI
+    component "自托管API\n(Self-hosted API)" as SelfHostedAPI
+  }
+  
+  component "第三方服务\n(Third-party Services)" as ThirdParty {
+    component "邮件服务\n(Email Service)" as EmailService
+    component "OAuth服务\n(OAuth Service)" as OAuthService
+  }
+}
+
+' 部署拓扑
+package "部署拓扑 (Deployment Topology)" {
+  node "Web层\n(Web Layer)" as WebLayer {
+    component "Nginx\n(反向代理)" as NginxNode
+    component "Next.js应用\n(Next.js App)" as NextJSNode
+  }
+  
+  node "API层\n(API Layer)" as APILayer {
+    component "Gunicorn\n(WSGI服务器)" as GunicornNode
+    component "Flask应用\n(Flask App)" as FlaskNode
+  }
+  
+  node "Worker层\n(Worker Layer)" as WorkerLayer {
+    component "Celery Worker\n(任务处理器)" as CeleryWorkerNode
+    component "Celery Beat\n(定时调度)" as CeleryBeatNode
+  }
+  
+  node "数据层\n(Data Layer)" as DataLayer {
+    component "PostgreSQL\n(关系数据库)" as PostgreSQLNode
+    component "Redis\n(缓存)" as RedisNode
+    component "Weaviate\n(向量数据库)" as WeaviateNode
+  }
+}
+
+' 关系
+NextJS --> React
+NextJS --> TypeScript
+NextJS --> Tailwind
+NextJS --> SWR
+NextJS --> Zustand
+
+Python --> Flask
+Python --> SQLAlchemy
+Python --> Celery
+Python --> Gunicorn
+Python --> Gevent
+
+Flask --> RelationalDB
+Flask --> CacheDB
+Flask --> MessageQueue
+Celery --> MessageQueue
+Celery --> CacheDB
+
+SQLAlchemy --> PostgreSQL
+SQLAlchemy --> MySQL
+
+Containerization --> Docker
+Containerization --> DockerCompose
+Kubernetes --> Helm
+Kubernetes --> YAMLConfig
+
+Nginx --> NextJSNode
+Nginx --> FlaskNode
+GunicornNode --> FlaskNode
+CeleryWorkerNode --> FlaskNode
+CeleryBeatNode --> FlaskNode
+
+FlaskNode --> PostgreSQLNode
+FlaskNode --> RedisNode
+FlaskNode --> WeaviateNode
+
+NextJSNode --> FlaskNode
+FlaskNode --> LLMAPI
+FlaskNode --> ThirdParty
+
+FlaskNode --> Monitoring
+NextJSNode --> Monitoring
+
+note right of NextJS
+  前端技术栈：
+  - Next.js 15 (App Router)
+  - React 19 (Server Components)
+  - TypeScript (类型安全)
+  - Tailwind CSS (原子化CSS)
+end note
+
+note right of Python
+  后端技术栈：
+  - Python 3.x
+  - Flask (轻量级Web框架)
+  - SQLAlchemy (ORM)
+  - Celery (异步任务)
+  - Gunicorn + Gevent (WSGI服务器)
+end note
+
+note right of Containerization
+  部署方式：
+  - Docker容器化
+  - Docker Compose (开发/小规模)
+  - Kubernetes (生产/大规模)
+  - Helm Charts (K8s部署)
+end note
+
+note right of DataLayer
+  数据存储：
+  - PostgreSQL/MySQL (关系数据)
+  - Redis (缓存和队列)
+  - Weaviate/Qdrant/Milvus (向量数据)
+  - 对象存储 (文件)
+end note
+
+@enduml
+

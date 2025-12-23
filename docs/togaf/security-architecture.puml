@@ -1,0 +1,263 @@
+@startuml 安全架构视图
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+
+title Dify 安全架构视图 (Security Architecture)
+
+' 认证层
+package "认证层 (Authentication Layer)" {
+  component "用户认证\n(User Authentication)" as UserAuth {
+    component "邮箱密码认证\n(Email/Password)" as EmailPassword
+    component "OAuth 2.0认证\n(OAuth 2.0)" as OAuth2
+    component "API Key认证\n(API Key)" as APIKey
+    component "Bearer Token认证\n(Bearer Token)" as BearerToken
+  }
+  
+  component "会话管理\n(Session Management)" as SessionMgmt {
+    component "JWT Token\n(JWT令牌)" as JWT
+    component "Session Cookie\n(会话Cookie)" as SessionCookie
+    component "Token刷新机制\n(Token Refresh)" as TokenRefresh
+  }
+  
+  component "凭证管理\n(Credential Management)" as CredentialMgmt {
+    component "密码加密\n(Password Encryption)" as PasswordEncrypt
+    component "API Key加密\n(API Key Encryption)" as APIKeyEncrypt
+    component "凭证存储\n(Credential Storage)" as CredentialStorage
+  }
+}
+
+' 授权层
+package "授权层 (Authorization Layer)" {
+  component "访问控制\n(Access Control)" as AccessControl {
+    component "工作空间隔离\n(Workspace Isolation)" as WorkspaceIsolation
+    component "应用访问控制\n(App Access Control)" as AppAccessControl
+    component "数据集权限\n(Dataset Permission)" as DatasetPermission
+    component "角色权限管理\n(Role Permission)" as RolePermission
+  }
+  
+  component "权限模型\n(Permission Model)" as PermissionModel {
+    component "所有者权限\n(Owner Permission)" as OwnerPerm
+    component "成员权限\n(Member Permission)" as MemberPerm
+    component "只读权限\n(Read-only Permission)" as ReadOnlyPerm
+    component "公开访问\n(Public Access)" as PublicAccess
+  }
+  
+  component "资源授权\n(Resource Authorization)" as ResourceAuth {
+    component "API端点授权\n(API Endpoint Auth)" as EndpointAuth
+    component "数据访问授权\n(Data Access Auth)" as DataAccessAuth
+    component "操作授权\n(Operation Auth)" as OperationAuth
+  }
+}
+
+' 数据安全层
+package "数据安全层 (Data Security Layer)" {
+  component "数据加密\n(Data Encryption)" as DataEncryption {
+    component "传输加密\n(Transport Encryption)" as TransportEncrypt
+    component "存储加密\n(Storage Encryption)" as StorageEncrypt
+    component "敏感数据加密\n(Sensitive Data Encryption)" as SensitiveEncrypt
+  }
+  
+  component "数据保护\n(Data Protection)" as DataProtection {
+    component "数据脱敏\n(Data Masking)" as DataMasking
+    component "数据备份\n(Data Backup)" as DataBackup
+    component "数据恢复\n(Data Recovery)" as DataRecovery
+  }
+  
+  component "凭证安全\n(Credential Security)" as CredentialSecurity {
+    component "提供商凭证加密\n(Provider Credential Encryption)" as ProviderCredEncrypt
+    component "API密钥管理\n(API Key Management)" as APIKeyMgmt
+    component "密钥轮换\n(Key Rotation)" as KeyRotation
+  }
+}
+
+' 内容安全层
+package "内容安全层 (Content Security Layer)" {
+  component "输入审核\n(Input Moderation)" as InputModeration {
+    component "关键词过滤\n(Keyword Filtering)" as KeywordFilter
+    component "OpenAI Moderation\n(OpenAI审核)" as OpenAIModeration
+    component "自定义审核\n(Custom Moderation)" as CustomModeration
+  }
+  
+  component "输出审核\n(Output Moderation)" as OutputModeration {
+    component "输出内容审核\n(Output Content Moderation)" as OutputContentMod
+    component "敏感信息过滤\n(Sensitive Info Filter)" as SensitiveFilter
+  }
+  
+  component "内容过滤\n(Content Filtering)" as ContentFiltering {
+    component "恶意内容检测\n(Malicious Content Detection)" as MaliciousDetection
+    component "不当内容过滤\n(Inappropriate Content Filter)" as InappropriateFilter
+  }
+}
+
+' 网络安全层
+package "网络安全层 (Network Security Layer)" {
+  component "传输安全\n(Transport Security)" as TransportSecurity {
+    component "HTTPS/TLS\n(HTTPS/TLS)" as HTTPS
+    component "证书管理\n(Certificate Management)" as CertMgmt
+    component "SSL/TLS配置\n(SSL/TLS Config)" as SSLConfig
+  }
+  
+  component "网络防护\n(Network Protection)" as NetworkProtection {
+    component "SSRF防护代理\n(SSRF Protection Proxy)" as SSRFProxy
+    component "请求限流\n(Rate Limiting)" as RateLimiting
+    component "DDoS防护\n(DDoS Protection)" as DDoSProtection
+  }
+  
+  component "API安全\n(API Security)" as APISecurity {
+    component "API限流\n(API Rate Limiting)" as APIRateLimit
+    component "请求验证\n(Request Validation)" as RequestValidation
+    component "CORS配置\n(CORS Configuration)" as CORS
+  }
+}
+
+' 安全监控层
+package "安全监控层 (Security Monitoring Layer)" {
+  component "日志记录\n(Logging)" as Logging {
+    component "访问日志\n(Access Log)" as AccessLog
+    component "错误日志\n(Error Log)" as ErrorLog
+    component "安全事件日志\n(Security Event Log)" as SecurityLog
+  }
+  
+  component "错误追踪\n(Error Tracking)" as ErrorTracking {
+    component "Sentry集成\n(Sentry Integration)" as Sentry
+    component "异常监控\n(Exception Monitoring)" as ExceptionMonitoring
+  }
+  
+  component "追踪系统\n(Tracing System)" as TracingSystem {
+    component "OpenTelemetry\n(OpenTelemetry)" as OpenTelemetry
+    component "分布式追踪\n(Distributed Tracing)" as DistributedTracing
+    component "性能监控\n(Performance Monitoring)" as PerfMonitoring
+  }
+  
+  component "安全审计\n(Security Audit)" as SecurityAudit {
+    component "操作审计\n(Operation Audit)" as OperationAudit
+    component "访问审计\n(Access Audit)" as AccessAudit
+    component "变更审计\n(Change Audit)" as ChangeAudit
+  }
+}
+
+' 合规性
+package "合规性 (Compliance)" {
+  component "数据隐私\n(Data Privacy)" as DataPrivacy {
+    component "GDPR合规\n(GDPR Compliance)" as GDPR
+    component "数据保留策略\n(Data Retention Policy)" as DataRetention
+    component "用户数据删除\n(User Data Deletion)" as UserDataDeletion
+  }
+  
+  component "安全标准\n(Security Standards)" as SecurityStandards {
+    component "OWASP Top 10\n(OWASP Top 10)" as OWASP
+    component "安全最佳实践\n(Security Best Practices)" as BestPractices
+  }
+}
+
+' 安全流程组件
+package "安全流程组件 (Security Process Components)" {
+  component "认证流程\n(Authentication Process)" as AuthFlow
+  component "授权流程\n(Authorization Process)" as AuthzFlow
+  component "内容审核流程\n(Content Moderation Process)" as ModerationFlow
+}
+
+' 关系
+UserAuth --> SessionMgmt
+UserAuth --> CredentialMgmt
+SessionMgmt --> JWT
+SessionMgmt --> SessionCookie
+
+AccessControl --> PermissionModel
+AccessControl --> ResourceAuth
+PermissionModel --> WorkspaceIsolation
+PermissionModel --> AppAccessControl
+
+DataEncryption --> TransportEncrypt
+DataEncryption --> StorageEncrypt
+DataEncryption --> SensitiveEncrypt
+CredentialSecurity --> ProviderCredEncrypt
+CredentialSecurity --> APIKeyMgmt
+
+InputModeration --> KeywordFilter
+InputModeration --> OpenAIModeration
+OutputModeration --> OutputContentMod
+OutputModeration --> SensitiveFilter
+
+TransportSecurity --> HTTPS
+NetworkProtection --> SSRFProxy
+NetworkProtection --> RateLimiting
+APISecurity --> APIRateLimit
+APISecurity --> RequestValidation
+
+Logging --> AccessLog
+Logging --> ErrorLog
+Logging --> SecurityLog
+ErrorTracking --> Sentry
+TracingSystem --> OpenTelemetry
+
+AuthFlow --> UserAuth
+AuthzFlow --> AccessControl
+ModerationFlow --> InputModeration
+ModerationFlow --> OutputModeration
+
+' 安全流程关系
+AuthFlow --> UserAuth : "1. 用户请求"
+AuthFlow --> SessionMgmt : "2. 验证凭证"
+AuthFlow --> JWT : "3. 生成Token"
+AuthFlow --> AccessControl : "4. 授权访问"
+
+AuthzFlow --> AccessControl : "1. 接收请求"
+AuthzFlow --> PermissionModel : "2. 检查权限"
+AuthzFlow --> ResourceAuth : "3. 验证操作"
+
+ModerationFlow --> InputModeration : "1. 接收内容"
+ModerationFlow --> OutputModeration : "2. 审核输出"
+ModerationFlow --> ContentFiltering : "3. 内容过滤"
+
+note right of UserAuth
+  认证方式：
+  - 邮箱密码登录
+  - OAuth 2.0 (Google, GitHub等)
+  - API Key
+  - Bearer Token
+end note
+
+note right of AccessControl
+  访问控制：
+  - 工作空间级别隔离
+  - 应用级别访问控制
+  - 数据集权限管理
+  - 基于角色的权限
+end note
+
+note right of DataEncryption
+  数据加密：
+  - HTTPS传输加密
+  - 数据库存储加密
+  - 敏感数据加密存储
+  - 提供商凭证加密
+end note
+
+note right of InputModeration
+  内容安全：
+  - 输入内容审核
+  - 输出内容审核
+  - 关键词过滤
+  - OpenAI Moderation集成
+end note
+
+note right of NetworkProtection
+  网络安全：
+  - HTTPS/TLS加密
+  - SSRF防护代理
+  - API限流
+  - 请求验证
+end note
+
+note right of Logging
+  安全监控：
+  - 访问日志记录
+  - 错误追踪 (Sentry)
+  - 分布式追踪 (OpenTelemetry)
+  - 安全事件审计
+end note
+
+@enduml

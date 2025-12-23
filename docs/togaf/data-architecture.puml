@@ -1,0 +1,191 @@
+@startuml 数据架构视图
+!theme plain
+skinparam componentStyle rectangle
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 11
+
+title Dify 数据架构视图 (Data Architecture)
+
+' 数据存储层
+package "数据存储层 (Data Storage Layer)" {
+  component "关系数据库\n(Relational Database)" as RelationalDB {
+    component "PostgreSQL\n(PostgreSQL)" as PostgreSQL
+    component "MySQL\n(MySQL)" as MySQL
+  }
+  
+  component "向量数据库\n(Vector Database)" as VectorDB {
+    component "Weaviate\n(Weaviate)" as Weaviate
+    component "Qdrant\n(Qdrant)" as Qdrant
+    component "Milvus\n(Milvus)" as Milvus
+    component "Chroma\n(Chroma)" as Chroma
+  }
+  
+  component "缓存数据库\n(Cache Database)" as CacheDB {
+    component "Redis\n(Redis)" as Redis
+  }
+  
+  component "对象存储\n(Object Storage)" as ObjectStorage {
+    component "本地存储\n(Local Storage)" as LocalStorage
+    component "S3兼容存储\n(S3 Compatible)" as S3Storage
+  }
+}
+
+' 数据模型层
+package "核心数据模型 (Core Data Models)" {
+  component "Account\n(账户模型)" as Account
+  component "Workspace\n(工作空间模型)" as Workspace
+  component "App\n(应用模型)" as App
+  component "Dataset\n(数据集模型)" as Dataset
+  component "Document\n(文档模型)" as Document
+  component "DocumentSegment\n(文档片段模型)" as DocumentSegment
+  component "Conversation\n(对话模型)" as Conversation
+  component "Message\n(消息模型)" as Message
+  component "Workflow\n(工作流模型)" as Workflow
+  component "Model\n(模型配置)" as Model
+  component "Provider\n(提供商模型)" as Provider
+}
+
+' 数据流组件
+package "数据流组件 (Data Flow Components)" {
+  component "文档导入流程\n(Document Import Flow)" as DocImportFlow
+  component "对话数据流程\n(Conversation Flow)" as ConversationFlow
+  component "工作流执行流程\n(Workflow Execution Flow)" as WorkflowFlow
+  component "模型调用流程\n(Model Invocation Flow)" as ModelFlow
+}
+
+' 数据访问层
+package "数据访问层 (Data Access Layer)" {
+  component "Repository层\n(Repository Layer)" as RepoLayer {
+    component "应用Repository\n(App Repository)" as AppRepo
+    component "数据集Repository\n(Dataset Repository)" as DatasetRepo
+    component "文档Repository\n(Document Repository)" as DocRepo
+    component "工作流Repository\n(Workflow Repository)" as WorkflowRepo
+  }
+  
+  component "ORM层\n(ORM Layer)" as ORMLayer {
+    component "SQLAlchemy\n(ORM Framework)" as SQLAlchemy
+  }
+}
+
+' 数据关系
+Account --> Workspace : "拥有"
+Workspace --> App : "包含"
+Workspace --> Dataset : "包含"
+App --> Conversation : "产生"
+App --> Workflow : "使用"
+Dataset --> Document : "包含"
+Document --> DocumentSegment : "包含"
+Conversation --> Message : "包含"
+App --> Model : "使用"
+Model --> Provider : "属于"
+
+' 存储映射
+Account --> PostgreSQL : "存储"
+Workspace --> PostgreSQL : "存储"
+App --> PostgreSQL : "存储"
+Dataset --> PostgreSQL : "存储"
+Document --> PostgreSQL : "存储"
+DocumentSegment --> PostgreSQL : "存储"
+Conversation --> PostgreSQL : "存储"
+Message --> PostgreSQL : "存储"
+Workflow --> PostgreSQL : "存储"
+Model --> PostgreSQL : "存储"
+Provider --> PostgreSQL : "存储"
+
+DocumentSegment --> Weaviate : "向量存储"
+DocumentSegment --> Qdrant : "向量存储"
+DocumentSegment --> Milvus : "向量存储"
+Document --> ObjectStorage : "文件存储"
+
+Conversation --> Redis : "缓存"
+Message --> Redis : "缓存"
+Workflow --> Redis : "中间结果"
+
+' 数据流关系
+DocImportFlow --> ObjectStorage : "1. 上传文档"
+DocImportFlow --> Document : "2. 解析文档"
+DocImportFlow --> DocumentSegment : "3. 分块处理"
+DocImportFlow --> Weaviate : "4. 向量存储"
+DocImportFlow --> PostgreSQL : "5. 更新元数据"
+
+ConversationFlow --> PostgreSQL : "1. 存储消息"
+ConversationFlow --> Weaviate : "2. 检索文档"
+ConversationFlow --> PostgreSQL : "3. 存储回复"
+ConversationFlow --> Redis : "4. 缓存上下文"
+
+WorkflowFlow --> PostgreSQL : "1. 加载定义"
+WorkflowFlow --> Redis : "2. 存储中间结果"
+WorkflowFlow --> PostgreSQL : "3. 存储最终结果"
+
+ModelFlow --> PostgreSQL : "1. 加载配置"
+ModelFlow --> Redis : "2. 检查缓存"
+ModelFlow --> PostgreSQL : "3. 存储响应"
+
+' Repository关系
+AppRepo --> App
+DatasetRepo --> Dataset
+DocRepo --> Document
+WorkflowRepo --> Workflow
+AppRepo --> SQLAlchemy
+DatasetRepo --> SQLAlchemy
+DocRepo --> SQLAlchemy
+WorkflowRepo --> SQLAlchemy
+SQLAlchemy --> PostgreSQL
+
+note right of RelationalDB
+  关系数据库存储：
+  - 用户和账户信息
+  - 应用配置
+  - 数据集元数据
+  - 对话和消息
+  - 工作流定义
+  - 模型配置
+end note
+
+note right of VectorDB
+  向量数据库存储：
+  - 文档片段的嵌入向量
+  - 支持相似度检索
+  - 支持混合检索
+end note
+
+note right of CacheDB
+  Redis缓存存储：
+  - 会话信息
+  - Celery任务队列
+  - 临时数据
+  - 对话上下文
+end note
+
+note right of ObjectStorage
+  对象存储存储：
+  - 原始文档文件
+  - 图片和音频
+  - 用户上传的文件
+end note
+
+note bottom of Account
+  核心字段：
+  - id, name, email
+  - password_hash
+  - interface_language
+  - created_at, updated_at
+end note
+
+note bottom of App
+  核心字段：
+  - id, name, mode
+  - model_config
+  - workspace_id
+  - status, created_at
+end note
+
+note bottom of DocumentSegment
+  核心字段：
+  - id, document_id
+  - content, word_count
+  - index_node_id
+  - status, created_at
+end note
+
+@enduml
