@@ -1,12 +1,14 @@
 'use client'
 import type { FC } from 'react'
-import React, { useEffect, useState } from 'react'
+import type { CurrentTryAppParams } from '@/context/explore-context'
+import type { InstalledApp } from '@/models/explore'
 import { useRouter } from 'next/navigation'
-import ExploreContext from '@/context/explore-context'
+import * as React from 'react'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Sidebar from '@/app/components/explore/sidebar'
 import { useAppContext } from '@/context/app-context'
-import type { InstalledApp } from '@/models/explore'
-import { useTranslation } from 'react-i18next'
+import ExploreContext from '@/context/explore-context'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { useMembers } from '@/service/use-common'
 
@@ -26,7 +28,7 @@ const Explore: FC<IExploreProps> = ({
   const { t } = useTranslation()
   const { data: membersData } = useMembers()
 
-  useDocumentTitle(t('common.menus.explore'))
+  useDocumentTitle(t('menus.explore', { ns: 'common' }))
 
   useEffect(() => {
     if (!membersData?.accounts)
@@ -40,8 +42,18 @@ const Explore: FC<IExploreProps> = ({
       return router.replace('/datasets')
   }, [isCurrentWorkspaceDatasetOperator])
 
+  const [currentTryAppParams, setCurrentTryAppParams] = useState<CurrentTryAppParams | undefined>(undefined)
+  const [isShowTryAppPanel, setIsShowTryAppPanel] = useState(false)
+  const setShowTryAppPanel = (showTryAppPanel: boolean, params?: CurrentTryAppParams) => {
+    if (showTryAppPanel)
+      setCurrentTryAppParams(params)
+    else
+      setCurrentTryAppParams(undefined)
+    setIsShowTryAppPanel(showTryAppPanel)
+  }
+
   return (
-    <div className='flex h-full overflow-hidden border-t border-divider-regular bg-background-body'>
+    <div className="flex h-full overflow-hidden border-t border-divider-regular bg-background-body">
       <ExploreContext.Provider
         value={
           {
@@ -52,11 +64,14 @@ const Explore: FC<IExploreProps> = ({
             setInstalledApps,
             isFetchingInstalledApps,
             setIsFetchingInstalledApps,
+            currentApp: currentTryAppParams,
+            isShowTryAppPanel,
+            setShowTryAppPanel,
           }
         }
       >
         <Sidebar controlUpdateInstalledApps={controlUpdateInstalledApps} />
-        <div className='w-0 grow'>
+        <div className="w-0 grow">
           {children}
         </div>
       </ExploreContext.Provider>

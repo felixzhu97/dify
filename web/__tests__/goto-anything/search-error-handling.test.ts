@@ -10,9 +10,17 @@ import type { MockedFunction } from 'vitest'
  */
 
 import { Actions, searchAnything } from '@/app/components/goto-anything/actions'
-import { postMarketplace } from '@/service/base'
 import { fetchAppList } from '@/service/apps'
+import { postMarketplace } from '@/service/base'
 import { fetchDatasets } from '@/service/datasets'
+
+// Mock react-i18next before importing modules that use it
+vi.mock('react-i18next', () => ({
+  getI18n: () => ({
+    t: (key: string) => key,
+    language: 'en',
+  }),
+}))
 
 // Mock API functions
 vi.mock('@/service/base', () => ({

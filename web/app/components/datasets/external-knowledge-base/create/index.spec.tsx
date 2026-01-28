@@ -1,7 +1,7 @@
-import React from 'react'
+import type { ExternalAPIItem } from '@/models/datasets'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ExternalAPIItem } from '@/models/datasets'
+import * as React from 'react'
 import ExternalKnowledgeBaseCreate from './index'
 import RetrievalSettings from './RetrievalSettings'
 
@@ -146,7 +146,7 @@ describe('ExternalKnowledgeBaseCreate', () => {
       renderComponent()
 
       const docLink = screen.getByText('dataset.connectHelper.helper4')
-      expect(docLink).toHaveAttribute('href', 'https://docs.dify.ai/en/guides/knowledge-base/connect-external-knowledge-base')
+      expect(docLink).toHaveAttribute('href', 'https://docs.dify.ai/en/use-dify/knowledge/connect-external-knowledge-base')
       expect(docLink).toHaveAttribute('target', '_blank')
       expect(docLink).toHaveAttribute('rel', 'noopener noreferrer')
     })

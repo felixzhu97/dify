@@ -1,17 +1,17 @@
 import type { Mock } from 'vitest'
-import React from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import CloudPlanItem from './index'
-import { Plan } from '../../../type'
-import { PlanRange } from '../../plan-switcher/plan-range-switcher'
+import * as React from 'react'
 import { useAppContext } from '@/context/app-context'
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
-import { fetchBillingUrl, fetchSubscriptionUrls } from '@/service/billing'
+import { fetchSubscriptionUrls } from '@/service/billing'
+import { consoleClient } from '@/service/client'
 import Toast from '../../../../base/toast'
 import { ALL_PLANS } from '../../../config'
+import { Plan } from '../../../type'
+import { PlanRange } from '../../plan-switcher/plan-range-switcher'
+import CloudPlanItem from './index'
 
 vi.mock('../../../../base/toast', () => ({
-  __esModule: true,
   default: {
     notify: vi.fn(),
   },
@@ -22,8 +22,15 @@ vi.mock('@/context/app-context', () => ({
 }))
 
 vi.mock('@/service/billing', () => ({
-  fetchBillingUrl: vi.fn(),
   fetchSubscriptionUrls: vi.fn(),
+}))
+
+vi.mock('@/service/client', () => ({
+  consoleClient: {
+    billing: {
+      invoices: vi.fn(),
+    },
+  },
 }))
 
 vi.mock('@/hooks/use-async-window-open', () => ({
@@ -38,7 +45,7 @@ vi.mock('../../assets', () => ({
 
 const mockUseAppContext = useAppContext as Mock
 const mockUseAsyncWindowOpen = useAsyncWindowOpen as Mock
-const mockFetchBillingUrl = fetchBillingUrl as Mock
+const mockBillingInvoices = consoleClient.billing.invoices as Mock
 const mockFetchSubscriptionUrls = fetchSubscriptionUrls as Mock
 const mockToastNotify = Toast.notify as Mock
 
@@ -70,7 +77,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockUseAppContext.mockReturnValue({ isCurrentWorkspaceManager: true })
   mockUseAsyncWindowOpen.mockReturnValue(vi.fn(async open => await open()))
-  mockFetchBillingUrl.mockResolvedValue({ url: 'https://billing.example' })
+  mockBillingInvoices.mockResolvedValue({ url: 'https://billing.example' })
   mockFetchSubscriptionUrls.mockResolvedValue({ url: 'https://subscription.example' })
   assignedHref = ''
 })
@@ -78,7 +85,7 @@ beforeEach(() => {
 describe('CloudPlanItem', () => {
   // Static content for each plan
   describe('Rendering', () => {
-    test('should show plan metadata and free label for sandbox plan', () => {
+    it('should show plan metadata and free label for sandbox plan', () => {
       render(
         <CloudPlanItem
           plan={Plan.sandbox}
@@ -94,7 +101,7 @@ describe('CloudPlanItem', () => {
       expect(screen.getByRole('button', { name: 'billing.plansCommon.currentPlan' })).toBeInTheDocument()
     })
 
-    test('should display yearly pricing with discount when planRange is yearly', () => {
+    it('should display yearly pricing with discount when planRange is yearly', () => {
       render(
         <CloudPlanItem
           plan={Plan.professional}
@@ -110,7 +117,7 @@ describe('CloudPlanItem', () => {
       expect(screen.getByText(/billing\.plansCommon\.priceTip.*billing\.plansCommon\.year/)).toBeInTheDocument()
     })
 
-    test('should disable CTA when workspace already on higher tier', () => {
+    it('should disable CTA when workspace already on higher tier', () => {
       render(
         <CloudPlanItem
           plan={Plan.professional}
@@ -127,7 +134,7 @@ describe('CloudPlanItem', () => {
 
   // Payment actions triggered from the CTA
   describe('Plan purchase flow', () => {
-    test('should show toast when non-manager tries to buy a plan', () => {
+    it('should show toast when non-manager tries to buy a plan', () => {
       mockUseAppContext.mockReturnValue({ isCurrentWorkspaceManager: false })
 
       render(
@@ -144,10 +151,10 @@ describe('CloudPlanItem', () => {
         type: 'error',
         message: 'billing.buyPermissionDeniedTip',
       }))
-      expect(mockFetchBillingUrl).not.toHaveBeenCalled()
+      expect(mockBillingInvoices).not.toHaveBeenCalled()
     })
 
-    test('should open billing portal when upgrading current paid plan', async () => {
+    it('should open billing portal when upgrading current paid plan', async () => {
       const openWindow = vi.fn(async (cb: () => Promise<string>) => await cb())
       mockUseAsyncWindowOpen.mockReturnValue(openWindow)
 
@@ -163,12 +170,12 @@ describe('CloudPlanItem', () => {
       fireEvent.click(screen.getByRole('button', { name: 'billing.plansCommon.currentPlan' }))
 
       await waitFor(() => {
-        expect(mockFetchBillingUrl).toHaveBeenCalledTimes(1)
+        expect(mockBillingInvoices).toHaveBeenCalledTimes(1)
       })
       expect(openWindow).toHaveBeenCalledTimes(1)
     })
 
-    test('should redirect to subscription url when selecting a new paid plan', async () => {
+    it('should redirect to subscription url when selecting a new paid plan', async () => {
       render(
         <CloudPlanItem
           plan={Plan.professional}

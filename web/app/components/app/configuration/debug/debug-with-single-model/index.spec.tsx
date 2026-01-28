@@ -1,15 +1,18 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { type ReactNode, type RefObject, createRef } from 'react'
-import DebugWithSingleModel from './index'
+import type { ReactNode, RefObject } from 'react'
 import type { DebugWithSingleModelRefType } from './index'
 import type { ChatItem } from '@/app/components/base/chat/types'
-import { ConfigurationMethodEnum, ModelFeatureEnum, ModelStatusEnum, ModelTypeEnum } from '@/app/components/header/account-setting/model-provider-page/declarations'
+import type { FileEntity } from '@/app/components/base/file-uploader/types'
+import type { Collection } from '@/app/components/tools/types'
 import type { ProviderContextState } from '@/context/provider-context'
 import type { DatasetConfigs, ModelConfig } from '@/models/debug'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { createRef } from 'react'
+import { useStore as useAppStore } from '@/app/components/app/store'
+import { ConfigurationMethodEnum, ModelFeatureEnum, ModelStatusEnum, ModelTypeEnum } from '@/app/components/header/account-setting/model-provider-page/declarations'
+import { CollectionType } from '@/app/components/tools/types'
 import { PromptMode } from '@/models/debug'
-import { type Collection, CollectionType } from '@/app/components/tools/types'
-import type { FileEntity } from '@/app/components/base/file-uploader/types'
 import { AgentStrategy, AppModeEnum, ModelModeType, Resolution, TransferMethod } from '@/types/app'
+import DebugWithSingleModel from './index'
 
 // ============================================================================
 // Test Data Factories (Following testing.md guidelines)
@@ -91,7 +94,6 @@ function createMockProviderContext(overrides: Partial<ProviderContextState> = {}
         provider: 'openai',
         label: { en_US: 'OpenAI', zh_Hans: 'OpenAI' },
         icon_small: { en_US: 'icon', zh_Hans: 'icon' },
-        icon_large: { en_US: 'icon', zh_Hans: 'icon' },
         status: ModelStatusEnum.active,
         models: [
           {
@@ -308,7 +310,7 @@ vi.mock('@/context/app-context', () => ({
 
 type FeatureState = {
   moreLikeThis: { enabled: boolean }
-  opening: { enabled: boolean; opening_statement: string; suggested_questions: string[] }
+  opening: { enabled: boolean, opening_statement: string, suggested_questions: string[] }
   moderation: { enabled: boolean }
   speech2text: { enabled: boolean }
   text2speech: { enabled: boolean }
@@ -375,15 +377,7 @@ vi.mock('../hooks', () => ({
   useFormattingChangedSubscription: mockUseFormattingChangedSubscription,
 }))
 
-const mockSetShowAppConfigureFeaturesModal = vi.fn()
-
-vi.mock('@/app/components/app/store', () => ({
-  useStore: vi.fn((selector?: (state: { setShowAppConfigureFeaturesModal: typeof mockSetShowAppConfigureFeaturesModal }) => unknown) => {
-    if (typeof selector === 'function')
-      return selector({ setShowAppConfigureFeaturesModal: mockSetShowAppConfigureFeaturesModal })
-    return mockSetShowAppConfigureFeaturesModal
-  }),
-}))
+// Use real store - global zustand mock will auto-reset between tests
 
 // Mock event emitter context
 vi.mock('@/context/event-emitter', () => ({
@@ -401,7 +395,6 @@ vi.mock('@/app/components/base/toast', () => ({
 
 // Mock hooks/use-timestamp
 vi.mock('@/hooks/use-timestamp', () => ({
-  __esModule: true,
   default: vi.fn(() => ({
     formatTime: vi.fn((timestamp: number) => new Date(timestamp).toLocaleString()),
   })),
@@ -421,7 +414,7 @@ type MockChatProps = {
   chatList?: ChatItem[]
   isResponding?: boolean
   onSend?: (message: string, files?: FileEntity[]) => void
-  onRegenerate?: (chatItem: ChatItem, editedQuestion?: { message: string; files?: FileEntity[] }) => void
+  onRegenerate?: (chatItem: ChatItem, editedQuestion?: { message: string, files?: FileEntity[] }) => void
   onStopResponding?: () => void
   suggestedQuestions?: string[]
   questionIcon?: ReactNode
@@ -472,8 +465,8 @@ vi.mock('@/app/components/base/chat/chat', () => ({
             </div>
           ))}
         </div>
-        {questionIcon && <div data-testid="question-icon">{questionIcon}</div>}
-        {answerIcon && <div data-testid="answer-icon">{answerIcon}</div>}
+        {!!questionIcon && <div data-testid="question-icon">{questionIcon}</div>}
+        {!!answerIcon && <div data-testid="answer-icon">{answerIcon}</div>}
         <textarea
           data-testid="chat-input"
           placeholder="Type a message"
@@ -659,7 +652,7 @@ describe('DebugWithSingleModel', () => {
 
       fireEvent.click(screen.getByTestId('feature-bar-button'))
 
-      expect(mockSetShowAppConfigureFeaturesModal).toHaveBeenCalledWith(true)
+      expect(useAppStore.getState().showAppConfigureFeaturesModal).toBe(true)
     })
   })
 
@@ -710,7 +703,6 @@ describe('DebugWithSingleModel', () => {
             provider: 'openai',
             label: { en_US: 'OpenAI', zh_Hans: 'OpenAI' },
             icon_small: { en_US: 'icon', zh_Hans: 'icon' },
-            icon_large: { en_US: 'icon', zh_Hans: 'icon' },
             status: ModelStatusEnum.active,
             models: [
               {
@@ -741,7 +733,6 @@ describe('DebugWithSingleModel', () => {
             provider: 'different-provider',
             label: { en_US: 'Different Provider', zh_Hans: '不同提供商' },
             icon_small: { en_US: 'icon', zh_Hans: 'icon' },
-            icon_large: { en_US: 'icon', zh_Hans: 'icon' },
             status: ModelStatusEnum.active,
             models: [],
           },
@@ -924,7 +915,6 @@ describe('DebugWithSingleModel', () => {
             provider: 'openai',
             label: { en_US: 'OpenAI', zh_Hans: 'OpenAI' },
             icon_small: { en_US: 'icon', zh_Hans: 'icon' },
-            icon_large: { en_US: 'icon', zh_Hans: 'icon' },
             status: ModelStatusEnum.active,
             models: [
               {
@@ -974,7 +964,6 @@ describe('DebugWithSingleModel', () => {
             provider: 'openai',
             label: { en_US: 'OpenAI', zh_Hans: 'OpenAI' },
             icon_small: { en_US: 'icon', zh_Hans: 'icon' },
-            icon_large: { en_US: 'icon', zh_Hans: 'icon' },
             status: ModelStatusEnum.active,
             models: [
               {

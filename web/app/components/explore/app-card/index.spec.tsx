@@ -1,14 +1,16 @@
-import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
-import AppCard, { type AppCardProps } from './index'
+import type { AppCardProps } from './index'
 import type { App } from '@/models/explore'
+import { fireEvent, render, screen } from '@testing-library/react'
+import * as React from 'react'
 import { AppModeEnum } from '@/types/app'
+import AppCard from './index'
 
 vi.mock('../../app/type-selector', () => ({
   AppTypeIcon: ({ type }: any) => <div data-testid="app-type-icon">{type}</div>,
 }))
 
 const createApp = (overrides?: Partial<App>): App => ({
+  can_trial: true,
   app_id: 'app-id',
   description: 'App description',
   copyright: '2024',
